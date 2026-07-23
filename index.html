@@ -1381,9 +1381,9 @@
             });
         }, observerOptions);
         
-        // Observe stat numbers
+        // Observe stat numbers - animate immediately on load (not on scroll)
         document.querySelectorAll('.stat-number').forEach(stat => {
-            observer.observe(stat);
+            animateCounter(stat);
         });
         
         // Add fade-in animation on scroll
