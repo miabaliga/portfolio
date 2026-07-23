@@ -246,6 +246,22 @@
             color: var(--color-primary);
         }
         
+        .nav-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--color-text-primary);
+            font-size: var(--font-size-xl);
+            cursor: pointer;
+            padding: var(--spacing-2);
+            border-radius: var(--radius-md);
+            line-height: 1;
+        }
+
+        .nav-toggle:hover {
+            background: var(--color-bg-secondary);
+        }
+        
         .theme-toggle {
             background: none;
             border: none;
@@ -256,11 +272,11 @@
             border-radius: var(--radius-md);
             transition: var(--transition-fast);
         }
-        
+
         .theme-toggle:hover {
             background: var(--color-bg-secondary);
         }
-        
+
         /* Hero Section */
         .hero {
             min-height: 100vh;
@@ -850,34 +866,59 @@
                 --font-size-3xl: 1.375rem;
                 --font-size-2xl: 1.125rem;
             }
-            
+
+            .nav-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
             .navbar-container {
-                flex-direction: column;
-                gap: var(--spacing-4);
+                position: relative;
+                flex-wrap: wrap;
+                padding: var(--spacing-3) var(--spacing-4);
             }
-            
+
             .nav-links {
+                display: none;
                 flex-direction: column;
-                gap: var(--spacing-4);
-                text-align: center;
+                width: 100%;
+                gap: var(--spacing-2);
+                padding: var(--spacing-3) 0;
+                border-top: 1px solid var(--color-border);
+                order: 3;
             }
-            
+
+            .nav-links.open {
+                display: flex;
+            }
+
+            .nav-links a {
+                padding: var(--spacing-2) var(--spacing-3);
+                border-radius: var(--radius-md);
+                font-size: var(--font-size-base);
+            }
+
+            .nav-links a:hover {
+                background: var(--color-bg-secondary);
+            }
+
             .about-content {
                 grid-template-columns: 1fr;
             }
-            
+
             .experience-timeline::before {
                 left: 20px;
             }
-            
+
             .experience-item::before {
                 left: 10px;
             }
-            
+
             .experience-content {
                 margin-left: 40px;
             }
-            
+
             .projects-grid {
                 grid-template-columns: 1fr;
             }
@@ -930,6 +971,7 @@
                 <li><a href="#certifications">Certifications</a></li>
                 <li><a href="#contact">Contact</a></li>
             </ul>
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">☰</button>
             <button class="theme-toggle" id="themeToggle">🌙</button>
         </div>
     </nav>
@@ -1258,7 +1300,20 @@
         // Theme Toggle
         const themeToggle = document.getElementById('themeToggle');
         const html = document.documentElement;
-        
+        const navToggle = document.getElementById('navToggle');
+        const navLinks = document.querySelector('.nav-links');
+
+        navToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('open');
+            navToggle.textContent = navLinks.classList.contains('open') ? '✕' : '☰';
+        });
+
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('open');
+                navToggle.textContent = '☰';
+            });
+        });        
         // Check for saved theme preference or default to light
         const savedTheme = localStorage.getItem('theme') || 'light';
         html.setAttribute('data-theme', savedTheme);
@@ -1290,21 +1345,22 @@
         // Animated Stats Counter
         const animateCounter = (element) => {
             const target = parseInt(element.getAttribute('data-target'));
-            const duration = 2000; // 2 seconds
-            const increment = target / (duration / 16); // 60fps
-            let current = 0;
-            
-            const updateCounter = () => {
-                current += increment;
-                if (current < target) {
-                    element.textContent = Math.ceil(current);
+            const duration = 500;
+            const startTime = performance.now();
+
+            const updateCounter = (now) => {
+                const elapsed = now - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3);
+                element.textContent = Math.round(target * eased);
+                if (progress < 1) {
                     requestAnimationFrame(updateCounter);
                 } else {
                     element.textContent = target;
                 }
             };
-            
-            updateCounter();
+
+            requestAnimationFrame(updateCounter);
         };
         
         // Intersection Observer for animations
