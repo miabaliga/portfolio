@@ -1,6 +1,4 @@
 #!/bin/bash
-# Deploy script: commits all changes and pushes to GitHub
-# Cloudflare auto-deploys on push. Site updates in ~30-60 seconds.
 set -e
 cd "$(dirname "$0")"
 
