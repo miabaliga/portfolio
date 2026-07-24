@@ -991,7 +991,7 @@
                 <span class="status-badge status-visa">
                     US Green Card · No Sponsorship Required
                 </span>
-                <a href="resume.html" download="Ramya_Baliga-Bhatt_Resume.html" class="btn-download">
+                <a href="javascript:void(0)" onclick="downloadResume()" class="btn-download">
                     <span>↓</span> Download Resume
                 </a>
             </div>
@@ -1435,6 +1435,176 @@
                 navbar.style.boxShadow = 'var(--shadow-md)';
             }
         });
+
+        function downloadResume() {
+            function txt(sel) { var el = document.querySelector(sel); return el ? el.textContent.trim() : ''; }
+            function txtAll(sel) { return [...document.querySelectorAll(sel)].map(e => e.textContent.trim()); }
+
+            var name = txt('.hero-name') || txt('h1');
+            var summary = txt('.hero-bio') || txt('.about-text p') || '';
+            var email = '', phone = '', location = '', linkedin = '', github = '', website = '';
+
+            document.querySelectorAll('.contact-card, .contact a, .contact span').forEach(function(el) {
+                var t = el.textContent.trim(), h = el.href || '';
+                if (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(t)) email = t;
+                else if (/^\+?[\d\s().-]{10,}$/.test(t)) phone = t;
+                else if (/linkedin/i.test(h+t)) linkedin = h || t;
+                else if (/github/i.test(h+t)) github = h || t;
+                else if (/\.dev|\.com|\.io/i.test(h) && !linkedin && !github) website = h;
+                else if (t && t.length < 40 && !location && !/[@+]/.test(t)) location = t;
+            });
+
+            var skills = {};
+            document.querySelectorAll('.skill-category').forEach(function(cat) {
+                var title = cat.querySelector('.skill-category-title, h3');
+                var tags = [...cat.querySelectorAll('.skill-tag')].map(function(t) { return t.textContent.trim(); });
+                if (title && tags.length) skills[title.textContent.trim()] = tags;
+            });
+
+            var projects = [];
+            document.querySelectorAll('.project-card').forEach(function(card) {
+                var title = card.querySelector('.project-title') ? card.querySelector('.project-title').textContent.trim() : '';
+                var desc = card.querySelector('.project-description') ? card.querySelector('.project-description').textContent.trim() : '';
+                var tags = [...card.querySelectorAll('.project-tag')].map(function(t) { return t.textContent.trim(); });
+                var link = card.querySelector('.project-link a');
+                if (title) projects.push({ title: title, desc: desc, tags: tags, link: link ? link.href : '' });
+            });
+
+            var experiences = [];
+            document.querySelectorAll('.experience-item').forEach(function(item) {
+                var role = item.querySelector('.experience-role') ? item.querySelector('.experience-role').textContent.trim() : '';
+                var company = item.querySelector('.experience-company') ? item.querySelector('.experience-company').textContent.trim() : '';
+                var period = item.querySelector('.experience-period') ? item.querySelector('.experience-period').textContent.trim() : '';
+                var bullets = [...item.querySelectorAll('.experience-list li')].map(function(li) { return li.textContent.trim(); });
+                if (role || company) experiences.push({ role: role, company: company, period: period, bullets: bullets });
+            });
+
+            var educations = [];
+            document.querySelectorAll('.education-item, .edu-item').forEach(function(item) {
+                var degree = item.querySelector('.education-degree, .edu-degree') ? item.querySelector('.education-degree, .edu-degree').textContent.trim() : '';
+                var school = item.querySelector('.education-school, .edu-school') ? item.querySelector('.education-school, .edu-school').textContent.trim() : '';
+                if (degree || school) educations.push({ degree: degree, school: school });
+            });
+
+            var certs = [];
+            document.querySelectorAll('.cert-badge').forEach(function(c) { var t = c.textContent.trim(); if (t) certs.push(t); });
+
+            var statusBadges = [];
+            document.querySelectorAll('.status-badge').forEach(function(b) { statusBadges.push(b.textContent.trim()); });
+
+            var html = '<!DOCTYPE html><html><head><meta charset="UTF-8">';
+            html += '<title>' + name + ' — Resume</title>';
+            html += '<style>';
+            html += '*{margin:0;padding:0;box-sizing:border-box}';
+            html += 'body{font-family:Calibri,Arial,sans-serif;color:#1a1a1a;background:#e5e0d8;padding:20px;line-height:1.5}';
+            html += '.resume{max-width:800px;margin:0 auto;background:#fdfbf7;padding:40px;box-shadow:0 2px 12px rgba(0,0,0,.1)}';
+            html += '.name{font-size:1.8rem;font-weight:bold;color:#2d4a3e;text-transform:uppercase;letter-spacing:1px}';
+            html += '.badges{margin:8px 0;display:flex;gap:8px;flex-wrap:wrap}';
+            html += '.badge{display:inline-block;padding:3px 10px;border-radius:4px;font-size:.75rem;font-weight:600}';
+            html += '.badge-green{background:rgba(122,158,126,.15);color:#2d4a3e;border:1px solid #7a9e7e}';
+            html += '.badge-orange{background:rgba(193,123,94,.12);color:#c17b5e;border:1px solid #c17b5e}';
+            html += '.contact{margin:8px 0;font-size:.9rem;color:#4a5450}';
+            html += '.contact span{margin-right:16px;display:inline-block}';
+            html += 'h2{font-size:1.1rem;text-transform:uppercase;color:#2d4a3e;border-bottom:2px solid #7a9e7e;padding-bottom:4px;margin:24px 0 12px}';
+            html += '.summary{font-size:.9rem;color:#4a5450;margin-bottom:12px}';
+            html += '.skill-group{margin-bottom:10px}';
+            html += '.skill-group h3{font-size:.85rem;color:#2d4a3e;margin-bottom:4px}';
+            html += '.skill-tags{font-size:.85rem;color:#4a5450}';
+            html += '.job{margin-bottom:16px}';
+            html += '.job-header{display:flex;justify-content:space-between}';
+            html += '.job-title{font-weight:600;color:#1a1a1a;font-size:.9rem}';
+            html += '.job-company{color:#c17b5e;font-size:.85rem}';
+            html += '.job-period{font-size:.8rem;color:#7a857f}';
+            html += '.job ul{margin:4px 0 0 18px;font-size:.85rem;color:#4a5450}';
+            html += '.job li{margin-bottom:3px}';
+            html += '.project{margin-bottom:12px}';
+            html += '.project-title{font-weight:600;font-size:.85rem}';
+            html += '.project-desc{font-size:.83rem;color:#4a5450}';
+            html += '.project-tags{font-size:.78rem;color:#7a857f}';
+            html += '.edu{margin-bottom:8px}';
+            html += '.edu-degree{font-weight:600;font-size:.85rem}';
+            html += '.edu-school{font-size:.83rem;color:#4a5450}';
+            html += '.certs{font-size:.83rem;color:#4a5450;line-height:1.8}';
+            html += '@media print{body{background:#fff;padding:0}.resume{box-shadow:none;max-width:100%}}';
+            html += '</style></head><body><div class="resume">';
+
+            html += '<div class="name">' + name + '</div>';
+            if (statusBadges.length) {
+                html += '<div class="badges">';
+                statusBadges.forEach(function(b) {
+                    var cls = /green|open/i.test(b) ? 'badge-green' : 'badge-orange';
+                    html += '<span class="badge ' + cls + '">' + b + '</span>';
+                });
+                html += '</div>';
+            }
+            html += '<div class="contact">';
+            if (location) html += '<span>' + location + '</span>';
+            if (phone) html += '<span>' + phone + '</span>';
+            if (email) html += '<span>' + email + '</span>';
+            if (website) html += '<span>' + website.replace('https://','') + '</span>';
+            if (linkedin) html += '<span>' + linkedin.replace('https://','') + '</span>';
+            if (github) html += '<span>' + github.replace('https://','') + '</span>';
+            html += '</div>';
+            if (summary) html += '<h2>Summary</h2><p class="summary">' + summary + '</p>';
+
+            if (Object.keys(skills).length) {
+                html += '<h2>Skills</h2>';
+                Object.entries(skills).forEach(function(entry) {
+                    html += '<div class="skill-group"><h3>' + entry[0] + '</h3><div class="skill-tags">' + entry[1].join(', ') + '</div></div>';
+                });
+            }
+
+            if (experiences.length) {
+                html += '<h2>Experience</h2>';
+                experiences.forEach(function(e) {
+                    html += '<div class="job"><div class="job-header"><div><span class="job-title">' + e.role + '</span>';
+                    if (e.company) html += ' — <span class="job-company">' + e.company + '</span>';
+                    html += '</div>';
+                    if (e.period) html += '<span class="job-period">' + e.period + '</span>';
+                    html += '</div><ul>';
+                    e.bullets.forEach(function(b) { html += '<li>' + b + '</li>'; });
+                    html += '</ul></div>';
+                });
+            }
+
+            if (projects.length) {
+                html += '<h2>Featured Projects</h2>';
+                projects.forEach(function(p) {
+                    html += '<div class="project"><div class="project-title">' + p.title;
+                    if (p.link) html += ' (<a href="' + p.link + '">' + p.link.replace('https://','') + '</a>)';
+                    html += '</div>';
+                    if (p.desc) html += '<div class="project-desc">' + p.desc + '</div>';
+                    if (p.tags.length) html += '<div class="project-tags">' + p.tags.join(' · ') + '</div>';
+                    html += '</div>';
+                });
+            }
+
+            if (educations.length) {
+                html += '<h2>Education</h2>';
+                educations.forEach(function(ed) {
+                    html += '<div class="edu"><div class="edu-degree">' + ed.degree + '</div>';
+                    if (ed.school) html += '<div class="edu-school">' + ed.school + '</div>';
+                    html += '</div>';
+                });
+            }
+
+            if (certs.length) {
+                html += '<h2>Certifications</h2><div class="certs">';
+                certs.forEach(function(c) { html += '<div>• ' + c + '</div>'; });
+                html += '</div>';
+            }
+
+            html += '</div></body></html>';
+
+            var blob = new Blob([html], { type: 'text/html' });
+            var a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = name.replace(/\s+/g, '_') + '_Resume.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(a.href);
+        }
     </script>
 </body>
 </html>
